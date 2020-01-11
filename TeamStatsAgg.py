@@ -41,7 +41,7 @@ def calculate_team_stats(engine):
         		tb.team_id
         		,gs.season
         		,gs.game_type
-        		,.5*((sum(tb.fga)+0.4*sum(tb.fta)-1.07*(sum(tb.oreb)*1.0/(sum(tb.oreb)+sum(tb.dreb)))*(sum(tb.fga)-sum(tb.fgm))+sum(tb.tov))+(sum(tb.fga_opp)+0.4*sum(tb.fta_opp)-1.07*(sum(tb.oreb_opp)*1.0/(sum(tb.oreb_opp)+sum(tb.dreb_opp))) * (sum(tb.fga_opp)-sum(tb.fgm_opp))+sum(tb.tov_opp))) poss    
+        		,.5*(sum(fga) + 0.475*sum(fta) - sum(orb) + sum(tov)) + .5*(sum(fga_opp) + 0.475*sum(fta_opp) - sum(orb_opp) + sum(tov_opp)) poss         
         	from
         		ncaa.team_boxscores tb
         	join
@@ -104,20 +104,20 @@ def calculate_team_stats(engine):
     	--Get 4 factors + ratings
     	,sum(pb.mp) mp
     	,p.poss
-    	,case when sum(pb.mp) > 0 then 48*((p.poss*2)/(2*(sum(pb.mp)/5.0))) else null end pace
+    	,case when sum(pb.mp) > 0 then 40*((p.poss*2)/(2*(sum(pb.mp)/5.0))) else null end pace
     	,sum(tb.pts)/p.poss*100 off_ftg
     	,sum(tb.pts_opp)*100.0/p.poss def_rtg
     	,(sum(tb.pts)-sum(tb.pts_opp))/p.poss*100 net_rtg
     	,sum(tb.fg3a)*1.0/sum(tb.fga) fg3_rate
     	,sum(tb.fta)*1.0/sum(tb.fga) ft_rate
     	,(sum(tb.fgm)+.5*sum(tb.fg3m))/sum(tb.fga) efg_pct
-    	,sum(tb.tov)/(sum(tb.fga)+.44*sum(tb.fta)+sum(tb.tov)) tov_pct
+    	,sum(tb.tov)/(sum(tb.fga)+.475*sum(tb.fta)+sum(tb.tov)) tov_pct
     	,sum(tb.oreb)*1.0/(sum(tb.oreb)+sum(tb.dreb_opp)) oreb_pct
     	,sum(tb.ftm)*1.0/sum(tb.fga) ff_ft_rate
     	,sum(tb.fg3a_opp)*1.0/sum(tb.fga_opp) fg3_rate_opp
     	,sum(tb.fga_opp)*1.0/sum(tb.fga_opp) ft_rate_opp
     	,(sum(tb.fgm_opp)+.5*sum(tb.fg3m_opp))/sum(tb.fga_opp) efg_pct_opp
-    	,sum(tb.tov_opp)/(sum(tb.fga_opp)+.44*sum(tb.fta_opp)+sum(tb.tov_opp)) tov_pct_opp
+    	,sum(tb.tov_opp)/(sum(tb.fga_opp)+.475*sum(tb.fta_opp)+sum(tb.tov_opp)) tov_pct_opp
     	,sum(tb.oreb_opp)*1.0/(sum(tb.oreb_opp)+sum(tb.dreb)) oreb_pct_opp
     	,sum(tb.ftm_opp)*1.0/sum(tb.fga_opp) ff_ft_rate_opp
     from

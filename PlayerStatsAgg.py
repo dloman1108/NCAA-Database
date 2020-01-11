@@ -87,8 +87,8 @@ def calculate_player_stats(engine):
 	    ,sum(pb.ast)*1.0/(((sum(pb.mp)/(tsa.mp/5))*tsa.fgm*tsa.gp)-sum(pb.fgm)) ast_pct
 	    ,sum(pb.stl)*1.0/((sum(pb.mp)/(tsa.mp/5))*tsa.poss) stl_pct
 	    ,sum(pb.blk)*1.0/((sum(pb.mp)/(tsa.mp/5))*(tsa.fga_opp*tsa.gp-tsa.fg3a_opp*tsa.gp)) blk_pct
-	    ,sum(pb.tov)*1.0/(sum(pb.fga)+0.44*sum(pb.fta)+sum(pb.tov)) tov_pct
-	    ,(sum(pb.fga)+0.44*sum(pb.fta)+sum(pb.tov))/((sum(pb.mp)/(tsa.mp/5))*(tsa.fga*tsa.gp+0.44*tsa.fta*tsa.gp+tsa.tov*tsa.gp)) usg_pct    
+	    ,sum(pb.tov)*1.0/(sum(pb.fga)+0.475*sum(pb.fta)+sum(pb.tov)) tov_pct
+	    ,(sum(pb.fga)+0.475*sum(pb.fta)+sum(pb.tov))/((sum(pb.mp)/(tsa.mp/5))*(tsa.fga*tsa.gp+0.475*tsa.fta*tsa.gp+tsa.tov*tsa.gp)) usg_pct    
         ,now() last_update_dts
 	from 
 	    ncaa.player_boxscores pb 
