@@ -66,7 +66,7 @@ def calculate_team_stats(engine):
     	,sum(tb.fgm)*1.0/sum(tb.fga) fg_pct
     	,avg(tb.fg3m*1.0) fg3m
     	,avg(tb.fg3a*1.0) fg3a
-    	,sum(tb.fg3m)*1.0/sum(tb."3PTA") fg3_pct
+    	,sum(tb.fg3m)*1.0/sum(tb.fg3a) fg3_pct
     	,avg(tb.ftm*1.0) ftm
     	,avg(tb.fta*1.0) fta
     	,sum(tb.ftm)*1.0/sum(tb.fta) ft_pct
@@ -83,7 +83,7 @@ def calculate_team_stats(engine):
     	,avg(tb.flag_fl) flag_fl
     	,avg(tb.fgm_opp*1.0) fgm_opp
     	,avg(tb.fga_opp*1.0) fga_opp
-    	,sum(tb.fgm_opp")*1.0/sum(tb.fga_opp) fg_pct_opp
+    	,sum(tb.fgm_opp)*1.0/sum(tb.fga_opp) fg_pct_opp
     	,avg(tb.fg3m_opp*1.0) fg3m_opp
     	,avg(tb.fg3a_opp*1.0) fg3a_opp
     	,sum(tb.fg3m_opp)*1.0/sum(tb.fg3a_opp) fg3_pct_opp
@@ -95,9 +95,9 @@ def calculate_team_stats(engine):
     	,avg(tb.oreb_opp) oreb_opp
     	,avg(tb.dreb_opp) dreb_opp
     	,avg(tb.ast_opp) ast_opp
-    	,avg(tb."STL_opp") stl_opp
-    	,avg(tb."BLK_opp") blk_opp
-    	,avg(tb."TOV_opp") tov_opp
+    	,avg(tb.stl_opp) stl_opp
+    	,avg(tb.blk_opp) blk_opp
+    	,avg(tb.tov_opp) tov_opp
     	,avg(tb.pf_opp) pf_opp
     	,avg(tb.tech_fl_opp) tech_fl_opp
     	,avg(tb.flag_Fl_opp) flag_fl_opp
@@ -125,7 +125,7 @@ def calculate_team_stats(engine):
     join
     	ncaa.game_summaries gs on tb.game_id=gs.game_id and gs.status='Final' and gs.ncaa_tournament_flg=False
     left join 
-    	(select game_id,team_id,mp from ncaa.player_boxscores group by game_id,team_id pb on tb.game_id=pb.game_id and tb.team_id=pb.team_id
+    	(select game_id,team_id,sum(cast(mp as float)) mp from ncaa.player_boxscores group by game_id,team_id) pb on tb.game_id=pb.game_id and tb.team_id=pb.team_id
     join
     	possessions p on tb.team_id=p.team_id and gs.season=p.season and gs.game_type=p.game_type
     group by
