@@ -342,7 +342,7 @@ def get_dates(engine):
         min(date) min_date
         ,max(date) max_date
     from 
-        nba.game_summaries
+        ncaa.game_summaries
     where
         status='Scheduled'
 
@@ -397,8 +397,8 @@ def drop_sched_rows(engine):
 def main():
     engine=get_engine()
     dates_list=get_dates(engine)
+    drop_sched_rows(engine)
     update_game_summaries(engine,dates_list)
-    drop_old_rows(engine)
     
     
     
