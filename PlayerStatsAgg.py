@@ -129,7 +129,7 @@ def calculate_player_stats(engine):
 
 	player_stats_agg.to_sql('player_stats_agg',
 			 con=engine,
-                         schema='nba',
+                         schema='ncaa',
                          index=False,
                          if_exists='replace',
                          dtype={'player': sa.types.VARCHAR(length=255),
