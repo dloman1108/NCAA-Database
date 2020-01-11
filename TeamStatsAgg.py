@@ -41,7 +41,7 @@ def calculate_team_stats(engine):
         		tb.team_id
         		,gs.season
         		,gs.game_type
-        		,.5*(sum(fga) + 0.475*sum(fta) - sum(orb) + sum(tov)) + .5*(sum(fga_opp) + 0.475*sum(fta_opp) - sum(orb_opp) + sum(tov_opp)) poss         
+        		,.5*(sum(tb.fga) + 0.475*sum(tb.fta) - sum(tb.oreb) + sum(tb.tov)) + .5*(sum(tb.fga_opp) + 0.475*sum(tb.fta_opp) - sum(tb.oreb_opp) + sum(tb.tov_opp)) poss         
         	from
         		ncaa.team_boxscores tb
         	join
