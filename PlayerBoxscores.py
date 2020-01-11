@@ -11,10 +11,11 @@ Created on Sat Mar  3 18:52:00 2018
 from bs4 import BeautifulSoup
 import numpy as np
 import pandas as pd
-import urllib2
+from urllib.request import urlopen
 import re
-import string as st
 import sqlalchemy as sa
+import yaml
+import os
 
 
 def get_made(x,var):
@@ -37,9 +38,7 @@ def append_boxscores(game_id,engine):
     url='http://www.espn.com/mens-college-basketball/boxscore?gameId='+str(game_id)
     
     
-    request=urllib2.Request(url)
-    page = urllib2.urlopen(request)
-    
+    page = urlopen(url)
     
     content=page.read()
     soup=BeautifulSoup(content,'lxml')
@@ -64,30 +63,34 @@ def append_boxscores(game_id,engine):
             
         
         player_stats_df=pd.DataFrame(np.array_split(results[:ind_stop],ind_stop/14.),
-                        columns=['Player','MP','FG','3PT','FT',
-                                 'OREB','DREB','REB','AST','STL','BLK',
-                                 'TOV','PF','PTS'])
+                        columns=['player','mp','fg','fg3','ft',
+                                 'oreb','dreb','reb','ast','stl','blk',
+                                 'tov','pf','pts'])
                                  
         for col in player_stats_df:
             try:
-                player_stats_df[col]=map(lambda x: float(x),player_stats_df[col])
+                player_stats_df[col]=list(map(lambda x: float(x),player_stats_df[col]))
             except:
                 continue
             
         if ind_stop != ind_team:
             dnp_df=pd.DataFrame(np.array_split(results[ind_stop:ind_team],(ind_team-ind_stop)/2.),
-                   columns=['Player','DNP_Reason'])
+                   columns=['player','dnp_reason'])
         else:
-            dnp_df=pd.DataFrame(columns=['Player','DNP_Reason'])
+            dnp_df=pd.DataFrame(columns=['player','dnp_reason'])
                 
         player_stats_df=player_stats_df.append(dnp_df).reset_index(drop=True)
         
-        player_stats_df['Player']=[el.string for el in tables[ind].find_all('span')][0::3][:len(player_stats_df)]
-        player_stats_df['PlayerID']=[el['href'][el['href'].index('id/')+3:] for el in tables[ind].find_all('a',href=True)][:len(player_stats_df)][:len(player_stats_df)]      
+        player_stats_df['player']=[el.string for el in tables[ind].find_all('span')][0::3][:len(player_stats_df)]
+        
+        try:
+            player_stats_df['player_id']=[el['href'][el['href'].find('id')+3:el['href'].find('id')+3+el['href'][el['href'].find('id')+3:].find('/')] for el in tables[ind].find_all('a',href=True)][:len(player_stats_df)]
+        except:
+            player_stats_df['player_id']=[el['href'][36:] for el in tables[ind].find_all('a',href=True)][:len(player_stats_df)]          
         #player_stats_df['PlayerAbbr']=[el['href'][36:][el['href'][36:].index('/')+1:] for el in tables[ind].find_all('a',href=True)][:len(player_stats_df)]      
         
         try:
-            player_stats_df['Position']=[el.string for el in tables[ind].find_all('span')][2::3][:len(player_stats_df)]
+            player_stats_df['position']=[el.string for el in tables[ind].find_all('span')][2::3][:len(player_stats_df)]
         except:
             spans=[el.string for el in tables[ind].find_all('span')]
             pos=[]
@@ -98,94 +101,148 @@ def append_boxscores(game_id,engine):
                     pos.append(None)
                 
             if len(pos)==len(player_stats_df):
-                player_stats_df['Position']=pos
+                player_stats_df['position']=pos
             else:
-                player_stats_df['Position']=pos+[None]
+                player_stats_df['position']=pos+[None]
             
         player_stats_df=player_stats_df.replace('-----','0-0').replace('--',0)
         
-        player_stats_df['Team']=team_info[ind-1].find_all('span',{'class':'abbrev'})[0].text
-        player_stats_df['TeamID']=team_info[ind-1]['data-clubhouse-uid'][12:]
-        player_stats_df['GameID']=game_id
+        player_stats_df['team']=team_info[ind-1].find_all('span',{'class':'abbrev'})[0].text
+        player_stats_df['team_id']=team_info[ind-1]['data-clubhouse-uid'][12:]
+        player_stats_df['game_id']=game_id
                 
                 
-        player_stats_df['FGM']=player_stats_df.apply(lambda x: get_made(x,'FG'), axis=1)
-        player_stats_df['FGA']=player_stats_df.apply(lambda x: get_attempts(x,'FG'), axis=1)
+        player_stats_df['fgm']=player_stats_df.apply(lambda x: get_made(x,'fg'), axis=1)
+        player_stats_df['fga']=player_stats_df.apply(lambda x: get_attempts(x,'fg'), axis=1)
         
-        player_stats_df['3PTM']=player_stats_df.apply(lambda x: get_made(x,'3PT'), axis=1)
-        player_stats_df['3PTA']=player_stats_df.apply(lambda x: get_attempts(x,'3PT'), axis=1)
+        player_stats_df['fg3m']=player_stats_df.apply(lambda x: get_made(x,'fg3'), axis=1)
+        player_stats_df['fg3a']=player_stats_df.apply(lambda x: get_attempts(x,'fg3'), axis=1)
         
-        player_stats_df['FTM']=player_stats_df.apply(lambda x: get_made(x,'FT'), axis=1)
-        player_stats_df['FTA']=player_stats_df.apply(lambda x: get_attempts(x,'FT'), axis=1)
+        player_stats_df['ftm']=player_stats_df.apply(lambda x: get_made(x,'ft'), axis=1)
+        player_stats_df['fta']=player_stats_df.apply(lambda x: get_attempts(x,'ft'), axis=1)
         
-        player_stats_df['StarterFLG']=[1.0]*5+[0.0]*(len(player_stats_df)-5)
+        player_stats_df['starter_flg']=[1.0]*5+[0.0]*(len(player_stats_df)-5)
         
-        player_stats_df[['GameID','Player','PlayerID','Position','Team','TeamID','StarterFLG','MP','FG','FGM','FGA','3PT','3PTM','3PTA','FT','FTM','FTA',
-                         'OREB','DREB','REB','AST','STL','BLK','TOV','PF','PTS','DNP_Reason']].to_sql('player_boxscores',con=engine,schema='ncaa',index=False,if_exists='append')
+        column_order=['game_id','player','player_id','position','team','team_id','starter_flg',
+                      'mp','fg','fgm','fga','fg3','fg3m','fg3a','ft','ftm','fta',
+                      'oreb','dreb','reb','ast','stl','blk','tov','pf','pts','dnp_reason']
+        
+        player_stats_df[column_order].to_sql('player_boxscores',
+                                             con=engine,
+                                             schema='ncaa',
+                                             index=False,
+                                             if_exists='append',
+                                             dtype={'game_id': sa.types.INTEGER(),
+                                                    'player': sa.types.VARCHAR(length=255),
+                                                    'player_id': sa.types.INTEGER(),
+                                                    'position': sa.types.CHAR(length=5),
+                                                    'team': sa.types.VARCHAR(length=255),
+                                                    'team_id':sa.types.INTEGER(),
+                                                    'starter_flg': sa.types.BOOLEAN(),
+                                                    'mp': sa.types.INTEGER(),
+                                                    'fg': sa.types.VARCHAR(length=255),
+                                                    'fgm': sa.types.INTEGER(),
+                                                    'fga': sa.types.INTEGER(),
+                                                    'fg3': sa.types.VARCHAR(length=255),
+                                                    'fg3m': sa.types.INTEGER(),
+                                                    'fg3a': sa.types.INTEGER(),
+                                                    'ft': sa.types.VARCHAR(length=255),
+                                                    'ftm': sa.types.INTEGER(),
+                                                    'fta': sa.types.INTEGER(),
+                                                    'oreb': sa.types.INTEGER(),
+                                                    'dreb': sa.types.INTEGER(),
+                                                    'reb': sa.types.INTEGER(),
+                                                    'ast': sa.types.INTEGER(),
+                                                    'stl': sa.types.INTEGER(),
+                                                    'blk': sa.types.INTEGER(),
+                                                    'tov': sa.types.INTEGER(),
+                                                    'pf': sa.types.INTEGER(),
+                                                    'pts': sa.types.INTEGER(),
+                                                    'dnp_reason': sa.types.VARCHAR(length=255)}) 
+
+
+def get_engine():
+    #Get credentials stored in sql.yaml file (saved in root directory)
+    if os.path.isfile('/sql.yaml'):
+        with open("/sql.yaml", 'r') as stream:
+            data_loaded = yaml.load(stream)
+            
+            #domain=data_loaded['SQL_DEV']['domain']
+            user=data_loaded['BBALL_STATS']['user']
+            password=data_loaded['BBALL_STATS']['password']
+            endpoint=data_loaded['BBALL_STATS']['endpoint']
+            port=data_loaded['BBALL_STATS']['port']
+            database=data_loaded['BBALL_STATS']['database']
+            
+    db_string = "postgres://{0}:{1}@{2}:{3}/{4}".format(user,password,endpoint,port,database)
+    engine=sa.create_engine(db_string)
     
+    return engine
 
 
-#Create PostgreSQL engine with SQL Alchemy. 
-#Connects to database "BasketballStats" on AWS
-username='dloman_bball'
-password='gosaints'
-endpoint='dlomandbinstance.cdusbgpuqzms.us-east-2.rds.amazonaws.com'
-port='5432'
-database='BasketballStats'
 
-db_string = "postgres://{0}:{1}@{2}:{3}/{4}".format(username,password,endpoint,port,database)
-engine=sa.create_engine(db_string)
-
-
-#game_id_query='''
-#
-#select * from nba.game_summaries 
-#where "Status"='Final'
-#
-#'''
-
-game_id_query='''
-
-select distinct
-    gs."Season"
-    ,gs."GameID"
-from
-    ncaa.game_summaries gs
-left join
-    ncaa.player_boxscores p on gs."GameID"=p."GameID" 
-where
-    p."GameID" is Null
-    and gs."Status"='Final'
-    and gs."Season"=(select max("Season") from ncaa.game_summaries)
-order by
-    gs."Season"
-
-'''
-
-
-game_ids=pd.read_sql(game_id_query,engine)
-
-
-cnt=0
-bad_gameids=[]
-for game_id in game_ids.GameID.tolist():
+def get_gameids(engine):
     
-    if np.mod(cnt,2000)==0:
-        print 'CHECK: ',cnt,len(bad_gameids)
+    game_id_query='''
 
-    try:
-        append_boxscores(game_id,engine)
-        cnt+=1
-        if np.mod(cnt,100)==0:
-            print str(round(float(cnt*100.0/len(game_ids)),2))+'%'
+    select distinct
+        gs.season
+        ,gs.game_id
+    from
+        ncaa.game_summaries gs
+    left join
+        ncaa.player_boxscores p on gs.game_id=p.game_id 
+    left join
+        ncaa.bad_gameids b on gs.game_id=b.game_id and b.table='player_boxscores'
+    where
+        p.game_id is Null
+        and b.game_id is Null
+        and gs.status='Final'
+    order by
+        gs.season
         
-    except:
-        bad_gameids.append(game_id)
-        cnt+=1
-        if np.mod(cnt,100) == 0:
-            print str(round(float(cnt*100.0/len(game_ids)),2))+'%' 
-        continue
+    '''
+    
+    game_ids=pd.read_sql(game_id_query,engine)
+    
+    return game_ids.game_id.tolist()
 
 
+
+def update_player_boxscores(engine,game_id_list):
+    cnt=0
+    print('Total Games: ',len(game_id_list))
+    for game_id in game_id_list:
+    
+        try:
+            append_boxscores(game_id,engine)
+            cnt+=1
+            if np.mod(cnt,100)==0:
+                print(str(round(float(cnt*100.0/len(game_id_list)),2))+'%')
+            
+        except:
+            bad_gameid_df=pd.DataFrame({'game_id':[game_id],'table':['player_boxscores']})
+            bad_gameid_df.to_sql('bad_gameids',
+                                  con=engine,
+                                  schema='ncaa',
+                                  index=False,
+                                  if_exists='append',
+                                  dtype={'game_id': sa.types.INTEGER(),
+                                         'table': sa.types.VARCHAR(length=255)})
+            cnt+=1
+            if np.mod(cnt,100) == 0:
+                print(str(round(float(cnt*100.0/len(game_id_list)),2))+'%')
+            continue
+
+
+def main():
+    engine=get_engine()
+    game_ids=get_gameids(engine)
+    update_player_boxscores(engine,game_ids)
+    
+    
+    
+if __name__ == "__main__":
+    main()
 
 

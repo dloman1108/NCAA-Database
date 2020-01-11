@@ -8,7 +8,7 @@ Created on Sat Mar  3 16:48:35 2018
 from bs4 import BeautifulSoup
 import numpy as np
 import pandas as pd
-import urllib2
+from urllib.request import urlopen
 import re
 import sklearn
 import string as st
@@ -23,8 +23,7 @@ def append_game_summary(date_str,group_num,engine):
     url='http://www.espn.com/mens-college-basketball/scoreboard/_/group/'+group_num+'/date/'+date_str
     
     #Get URL page 
-    request=urllib2.Request(url)
-    page = urllib2.urlopen(request)
+    page = urlopen(url)
     
     #Get content from URL page
     content=page.read()
@@ -220,8 +219,19 @@ def append_game_summary(date_str,group_num,engine):
             away_team_rank_seed=np.nan
             
         if group_num == '100':
+            postseason_tourney = 'NCAA'
             ncaa_tournament_flg=1
+        elif group_num == '98':
+            postseason_tourney = 'NIT'
+            ncaa_tournament_flg=0
+        elif group_num == '55':
+            postseason_tourney = 'CIT'
+            ncaa_tournament_flg=0
+        elif group_num == '56':
+            postseason_tourney = 'CBI'
+            ncaa_tournament_flg=0
         else:
+            postseason_tourney = None
             ncaa_tournament_flg=0
             
         #Append game results to list   
@@ -234,39 +244,85 @@ def append_game_summary(date_str,group_num,engine):
                                   group_conference_flg,group_id,group_name,
                                   home_team_overall_record,home_team_conference_record,home_team_home_record,home_team_away_record,
                                   away_team_overall_record,away_team_conference_record,away_team_home_record,away_team_away_record,
-                                  ncaa_tournament_flg))
+                                  postseason_tourney,ncaa_tournament_flg))
     
     #Define column names
-    col_names=['GameID','Status','StatusDetail','GameType','NeutralSiteFLG',
-    'Date','Season','HomeTeam','AwayTeam','HomeTeamRankSeed','AwayTeamRankSeed','HomeTeamScore','AwayTeamScore',
-              'Location','Venue','VenueID','Attendance','Broadcast',
-             'HeadlineLong','HeadlineShort','HomeTeamAbbr','HomeTeamID','HomeTeamConferenceID','HomeTeamD1FLG',
-             'HomeTeamWinner','AwayTeamAbbr','AwayTeamID','AwayTeamConferenceID','AwayTeamD1FLG',
-             'AwayTeamWinner','ConferenceGameFLG','Notes',
-             'GroupConferenceFLG','GroupID','GroupName',
-             'HomeTeamOverallRecord','HomeTeamConferenceRecord','HomeTeamHomeRecord','HomeTeamAwayRecord',
-             'AwayTeamOverallRecord','HomeTeamConferenceRecord','AwayTeamHomeRecord','AwayTeamAwayRecord',
-             'NCAATournamentFLG']  
+    col_names=['game_id','status','status_detail','game_type','neutral_site_flg',
+               'date','season','home_team','away_team','home_team_rank_seed','away_team_rank_seed',
+               'home_team_score','away_team_score','location','venue','venue_id','attendance',
+               'broadcast','headline_long','headline_short','home_team_abbr','home_team_id',
+               'home_team_conference_id','home_team_d1_flg','home_team_winner','away_team_abbr',
+               'away_team_id','away_team_conference_id','away_team_d1_flg','away_team_winner',
+               'conference_game_flg','notes','group_conference_flg','group_id','group_name',
+               'home_team_overall_record','home_team_conference_record','home_team_home_record',
+               'home_team_away_record','away_team_overall_record','away_team_conference_record',
+               'away_team_home_record','away_team_away_record','postseason_tourney','ncaa_tournament_flg']  
      
     #Save all games for date to DF                           
     scoreboard_results_df=pd.DataFrame(scoreboard_results,columns=col_names)
     
     #Append dataframe results to PostGres database
-    scoreboard_results_df.to_sql('game_summaries',con=engine,schema='ncaa',index=False,if_exists='append')
+    scoreboard_results_df.to_sql('game_summaries',
+                                 con=engine,schema='ncaa',
+                                 index=False,
+                                 if_exists='append',
+                                 dtype={'game_id': sa.types.INTEGER(),
+                                        'status': sa.types.VARCHAR(length=255),
+                                        'status_detail': sa.types.VARCHAR(length=255),
+                                        'game_type': sa.types.VARCHAR(length=255),
+                                        'neutral_site_flg': sa.types.BOOLEAN(), 
+                                        'date': sa.types.Date(),
+                                        'season': sa.types.INTEGER(),
+                                        'home_team': sa.types.VARCHAR(length=255),
+                                        'away_team': sa.types.VARCHAR(length=255),
+                                        'home_team_rank_seed': sa.types.INTEGER(), 
+                                        'away_team_rank_seed': sa.types.INTEGER(),
+                                        'home_team_score': sa.types.INTEGER(),
+                                        'away_team_score': sa.types.INTEGER(),
+                                        'location': sa.types.VARCHAR(length=255),
+                                        'venue': sa.types.VARCHAR(length=255),
+                                        'venue_id': sa.types.INTEGER(),
+                                        'attendance': sa.types.INTEGER(),
+                                        'broadcast': sa.types.VARCHAR(length=255),
+                                        'headline_long': sa.types.VARCHAR(length=255),
+                                        'headline_short': sa.types.VARCHAR(length=255),
+                                        'home_team_abbr': sa.types.VARCHAR(length=255),
+                                        'home_team_id': sa.types.INTEGER(),
+                                        'home_team_conference_id': sa.types.INTEGER(),
+                                        'home_team_d1_flg': sa.types.BOOLEAN(), 
+                                        'home_team_winner': sa.types.BOOLEAN(),
+                                        'away_team_abbr': sa.types.VARCHAR(length=255),
+                                        'away_team_id': sa.types.INTEGER(),
+                                        'away_team_conference_id': sa.types.INTEGER(),
+                                        'away_team_d1_flg': sa.types.BOOLEAN(), 
+                                        'away_team_winner': sa.types.BOOLEAN(),
+                                        'conference_game_flg': sa.types.BOOLEAN(),
+                                        'notes': sa.types.VARCHAR(length=255),
+                                        'group_conference_flg': sa.types.BOOLEAN(),
+                                        'group_id': sa.types.INTEGER(),
+                                        'group_name': sa.types.VARCHAR(length=255),
+                                        'home_team_overall_record': sa.types.VARCHAR(length=255),
+                                        'home_team_conference_record': sa.types.VARCHAR(length=255),
+                                        'home_team_home_record': sa.types.VARCHAR(length=255),
+                                        'home_team_away_record': sa.types.VARCHAR(length=255),
+                                        'away_team_overall_record': sa.types.VARCHAR(length=255),
+                                        'away_team_conference_record': sa.types.VARCHAR(length=255),
+                                        'away_team_home_record': sa.types.VARCHAR(length=255),
+                                        'away_team_away_record': sa.types.VARCHAR(length=255),
+                                        'ncaa_tournament_flg': sa.types.BOOLEAN()}
+                                 )
     
-    
-
 #Iterate through date strings to get game summaries for each date
 from datetime import datetime
-start = datetime(2019, 03, 17)
-end = datetime(2019, 04, 10)
+start = datetime(2019, 10, 15)
+end = datetime(2020, 4, 5)
 
 dates=[str(d)[:4]+str(d)[5:7]+str(d)[8:10] for d in pd.date_range(start, end) if d.month < 7 or d.month >= 10]
 
-dates_df=pd.DataFrame({'dates':dates})
+
 
 #Get credentials stored in sql.yaml file (saved in root directory)
-def get_engine()
+def get_engine():
     if os.path.isfile('/sql.yaml'):
         with open("/sql.yaml", 'r') as stream:
             data_loaded = yaml.load(stream)
@@ -291,11 +347,11 @@ from datetime import date
 def get_dates(engine):
     max_date_query='''
     select 
-        max(cast("Date" as date)) max_date
+        max(date) max_date
     from 
-        nba.game_summaries
+        ncaa.game_summaries
     where
-        "Status"='Final'
+        status='Final'
     '''
 
     #Iterate through date strings to get game summaries for each date
@@ -312,27 +368,29 @@ def update_game_summaries(engine,dates):
     cnt=0
     bad_dates=[]
     for date_str in dates: 
-        try:
-            append_game_summary(date_str,engine)
-            cnt+=1
-            if np.mod(cnt,100) == 0:
-                print str(round(float(cnt*100.0/len(dates)),2))+'%' 
-        except:
-            bad_dates.append(date_str)
-            cnt+=1
-            if np.mod(cnt,100) == 0:
-                print str(round(float(cnt*100.0/len(dates)),2))+'%' 
-            continue
+        for group_num in ['50','100','98','55','56']:
+            if group_num == '50' or date_str[4:6] in ['03','04']:
+                try:
+                    append_game_summary(date_str,group_num,engine)
+                    cnt+=1
+                    if np.mod(cnt,100) == 0:
+                        print(str(round(float(cnt*100.0/len(dates)),2))+'%')
+                except:
+                    bad_dates.append(date_str)
+                    cnt+=1
+                    if np.mod(cnt,100) == 0:
+                        print(str(round(float(cnt*100.0/len(dates)),2))+'%')
+                    continue
     
  
 def drop_old_rows(engine):
     #Drop old rows from games that were scheduled and now completed
     drop_old_rows_query='''
     delete from
-        nba.game_summaries gs
+        ncaa.game_summaries gs
     where
-        "Status" != 'Final'
-        and cast("Date" as Date) < (now() - interval '1 day')
+        status != 'Final'
+        and date < (now() - interval '1 day')
     '''
 
     engine.execute(drop_old_rows_query)

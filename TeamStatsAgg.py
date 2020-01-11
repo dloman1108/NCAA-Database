@@ -19,14 +19,14 @@ def get_engine():
 	#Get credentials stored in sql.yaml file (saved in root directory)
 	if os.path.isfile('/sql.yaml'):
 	    with open("/sql.yaml", 'r') as stream:
-		data_loaded = yaml.load(stream)
+    		data_loaded = yaml.load(stream)
 
-		#domain=data_loaded['SQL_DEV']['domain']
-		user=data_loaded['BBALL_STATS']['user']
-		password=data_loaded['BBALL_STATS']['password']
-		endpoint=data_loaded['BBALL_STATS']['endpoint']
-		port=data_loaded['BBALL_STATS']['port']
-		database=data_loaded['BBALL_STATS']['database']
+    		#domain=data_loaded['SQL_DEV']['domain']
+    		user=data_loaded['BBALL_STATS']['user']
+    		password=data_loaded['BBALL_STATS']['password']
+    		endpoint=data_loaded['BBALL_STATS']['endpoint']
+    		port=data_loaded['BBALL_STATS']['port']
+    		database=data_loaded['BBALL_STATS']['database']
 
 	db_string = "postgres://{0}:{1}@{2}:{3}/{4}".format(user,password,endpoint,port,database)
 	engine=sa.create_engine(db_string)
@@ -38,141 +38,119 @@ def calculate_team_stats(engine):
     team_stats_agg_query='''
     with possessions as (
         	select
-        		tb."TeamID"
-        		,gs."Season"
-        		,gs."GameType"
-        		,.5*((sum(tb."FGA")+0.4*sum(tb."FTA")-1.07*(sum(tb."OREB")*1.0/(sum(tb."OREB")+sum(tb."DREB")))*(sum(tb."FGA")-sum(tb."FGM"))+sum(tb."TOV"))+(sum(tb."FGA_opp")+0.4*sum(tb."FTA_opp")-1.07*(sum(tb."OREB_opp")*1.0/(sum(tb."OREB_opp")+sum(tb."DREB_opp"))) * (sum(tb."FGA_opp")-sum(tb."FGM_opp"))+sum(tb."TOV_opp"))) "Poss"
+        		tb.team_id
+        		,gs.season
+        		,gs.game_type
+        		,.5*((sum(tb.fga)+0.4*sum(tb.fta)-1.07*(sum(tb.oreb)*1.0/(sum(tb.oreb)+sum(tb.dreb)))*(sum(tb.fga)-sum(tb.fgm))+sum(tb.tov))+(sum(tb.fga_opp)+0.4*sum(tb.fta_opp)-1.07*(sum(tb.oreb_opp)*1.0/(sum(tb.oreb_opp)+sum(tb.dreb_opp))) * (sum(tb.fga_opp)-sum(tb.fgm_opp))+sum(tb.tov_opp))) poss    
         	from
         		ncaa.team_boxscores tb
         	join
-        		ncaa.game_summaries gs on tb."GameID"=gs."GameID" and gs."Status"='Final' and gs."NCAATournamentFLG"='0'
+        		ncaa.game_summaries gs on tb.game_id=gs.game_id and gs.status='Final' and gs.ncaa_tournament_flg=False
         	group by
-        		tb."TeamID"
-        		,gs."Season"
-        		,gs."GameType"
+        		tb.team_id
+        		,gs.season
+        		,gs.game_type
         )
         
     select
-    	tb."Team"
-        ,tb."TeamID"
-    	,gs."Season"
-    	,gs."GameType"
-    	,count(*) "GP"
-    	,sum(case when tb."PTS" > tb."PTS_opp" then 1 else 0 end) "Wins"
-    	,sum(case when tb."PTS" < tb."PTS_opp" then 1 else 0 end) "Losses"
-    	,avg(case when tb."PTS" > tb."PTS_opp" then 1.0 else 0 end) "WinPct"
-    	,avg(tb."FGM"*1.0) "FGM"
-    	,avg(tb."FGA"*1.0) "FGA"
-    	,sum(tb."FGM")*1.0/sum(tb."FGA") "FG_Pct"
-    	,avg(tb."3PTM"*1.0) "FG3M"
-    	,avg(tb."3PTA"*1.0) "FG3A"
-    	,sum(tb."3PTM")*1.0/sum(tb."3PTA") "FG3_Pct"
-    	,avg(tb."FTM"*1.0) "FTM"
-    	,avg(tb."FTA"*1.0) "FTA"
-    	,sum(tb."FTM")*1.0/sum(tb."FTA") "FT_Pct"
-    	,avg(tb."PTS") "PTS"
-    	,avg(tb."OREB")+avg(tb."DREB") "REB"
-    	,avg(tb."OREB") "OREB"
-    	,avg(tb."DREB") "DREB"
-    	,avg(tb."AST") "AST"
-    	,avg(tb."STL") "STL"
-    	,avg(tb."BLK") "BLK"
-    	,avg(tb."TOV") "TOV"
-    	--,avg(tb."PtsOffTOV") "PtsOffTOV"
-    	--,avg(tb."FstBrkPts") "FstBrkPts"
-    	--,avg(tb."PtsInPnt") "PtsInPnt"
-    	,avg(tb."PF") "PF"
-    	,avg(tb."TechF") "TechF"
-    	,avg(tb."FlagF") "FlagF"
-    	,avg(tb."FGM_opp"*1.0) "FGM_opp"
-    	,avg(tb."FGA_opp"*1.0) "FGA_opp"
-    	,sum(tb."FGM_opp")*1.0/sum(tb."FGA_opp") "FG_Pct_opp"
-    	,avg(tb."3PTM_opp"*1.0) "FG3M_opp"
-    	,avg(tb."3PTA_opp"*1.0) "FG3A_opp"
-    	,sum(tb."3PTM_opp")*1.0/sum(tb."3PTA_opp") "FG3_Pct_opp"
-    	,avg(tb."FTM_opp"*1.0) "FTM_opp"
-    	,avg(tb."FTA_opp"*1.0) "FTA_opp"
-    	,sum(tb."FTM_opp")*1.0/sum(tb."FTA_opp") "FT_Pct_opp"
-    	,avg(tb."PTS_opp") "PTS_opp"
-    	,avg(tb."OREB_opp")+avg(tb."DREB_opp") "REB_opp"
-    	,avg(tb."OREB_opp") "OREB_opp"
-    	,avg(tb."DREB_opp") "DREB_opp"
-    	,avg(tb."AST_opp") "AST_opp"
-    	,avg(tb."STL_opp") "STL_opp"
-    	,avg(tb."BLK_opp") "BLK_opp"
-    	,avg(tb."TOV_opp") "TOV_opp"
-    	--,avg(tb."PtsOffTOV_opp") "PtsOffTOV_opp"
-    	--,avg(tb."FstBrkPts_opp") "FstBrkPts_opp"
-    	--,avg(tb."PtsInPnt_opp") "PtsInPnt_opp"
-    	,avg("PF_opp") "PF_opp"
-    	,avg("TechF_opp") "TechF_opp"
-    	,avg("FlagF_opp") "FlagF_opp"
+    	tb.team
+        ,tb.team_id
+    	,gs.season
+    	,gs.game_type
+    	,count(*) gp
+    	,sum(case when tb.pts > tb.pts_opp then 1 else 0 end) wins
+    	,sum(case when tb.pts < tb.pts_opp then 1 else 0 end) losses
+    	,avg(case when tb.pts > tb.pts_opp then 1.0 else 0 end) win_pct
+    	,avg(tb.fgm*1.0) fgm
+    	,avg(tb.fga*1.0) fga
+    	,sum(tb.fgm)*1.0/sum(tb.fga) fg_pct
+    	,avg(tb.fg3m*1.0) fg3m
+    	,avg(tb.fg3a*1.0) fg3a
+    	,sum(tb.fg3m)*1.0/sum(tb."3PTA") fg3_pct
+    	,avg(tb.ftm*1.0) ftm
+    	,avg(tb.fta*1.0) fta
+    	,sum(tb.ftm)*1.0/sum(tb.fta) ft_pct
+    	,avg(tb.pts) pts
+    	,avg(tb.oreb)+avg(tb.dreb) reb
+    	,avg(tb.oreb) oreb
+    	,avg(tb.dreb) dreb
+    	,avg(tb.ast) ast
+    	,avg(tb.stl) stl
+    	,avg(tb.blk) blk
+    	,avg(tb.tov) tov
+    	,avg(tb.pf) pf
+    	,avg(tb.tech_fl) tech_fl
+    	,avg(tb.flag_fl) flag_fl
+    	,avg(tb.fgm_opp*1.0) fgm_opp
+    	,avg(tb.fga_opp*1.0) fga_opp
+    	,sum(tb.fgm_opp")*1.0/sum(tb.fga_opp) fg_pct_opp
+    	,avg(tb.fg3m_opp*1.0) fg3m_opp
+    	,avg(tb.fg3a_opp*1.0) fg3a_opp
+    	,sum(tb.fg3m_opp)*1.0/sum(tb.fg3a_opp) fg3_pct_opp
+    	,avg(tb.ftm_opp*1.0) ftm_opp
+    	,avg(tb.fga_opp*1.0) fta_opp
+    	,sum(tb.ftm_opp)*1.0/sum(tb.fta_opp) ft_pct_opp
+    	,avg(tb.pts_opp) pts_opp
+    	,avg(tb.oreb_opp)+avg(tb.dreb_opp) reb_opp
+    	,avg(tb.oreb_opp) oreb_opp
+    	,avg(tb.dreb_opp) dreb_opp
+    	,avg(tb.ast_opp) ast_opp
+    	,avg(tb."STL_opp") stl_opp
+    	,avg(tb."BLK_opp") blk_opp
+    	,avg(tb."TOV_opp") tov_opp
+    	,avg(tb.pf_opp) pf_opp
+    	,avg(tb.tech_fl_opp) tech_fl_opp
+    	,avg(tb.flag_Fl_opp) flag_fl_opp
     	--Get 4 factors + ratings
-    	,sum(pb."MP") "MP"
-    	,p."Poss"
-    	,case when sum(pb."MP") > 0 then 48*((p."Poss"*2)/(2*(sum(pb."MP")/5.0))) else null end "Pace"
-    	,sum(tb."PTS")/p."Poss"*100 "OffRTG"
-    	,sum(tb."PTS_opp")*100.0/p."Poss" "DefRTG"
-    	,(sum(tb."PTS")-sum(tb."PTS_opp"))/p."Poss"*100 "NetRTG"
-    	,sum(tb."3PTA")*1.0/sum(tb."FGA") "FG3_Rate"
-    	,sum(tb."FTA")*1.0/sum(tb."FGA") "FT_Rate"
-    	,(sum(tb."FGM")+.5*sum(tb."3PTM"))/sum(tb."FGA") "eFG_Pct"
-    	,sum(tb."TOV")/(sum(tb."FGA")+.44*sum(tb."FTA")+sum(tb."TOV")) "TOV_Pct"
-    	,sum(tb."OREB")*1.0/(sum(tb."OREB")+sum(tb."DREB_opp")) "OREB_Pct"
-    	,sum(tb."FTM")*1.0/sum(tb."FGA") "FF_FT_Rate"
-    	,sum(tb."3PTA_opp")*1.0/sum(tb."FGA_opp") "FG3_Rate_opp"
-    	,sum(tb."FTA_opp")*1.0/sum(tb."FGA_opp") "FT_Rate_opp"
-    	,(sum(tb."FGM_opp")+.5*sum(tb."3PTM_opp"))/sum(tb."FGA_opp") "eFG_Pct_opp"
-    	,sum(tb."TOV_opp")/(sum(tb."FGA_opp")+.44*sum(tb."FTA_opp")+sum(tb."TOV_opp")) "TOV_Pct_opp"
-    	,sum(tb."OREB_opp")*1.0/(sum(tb."OREB_opp")+sum(tb."DREB")) "OREB_Pct_opp"
-    	,sum(tb."FTM_opp")*1.0/sum(tb."FGA_opp") "FF_FT_Rate_opp"
+    	,sum(pb.mp) mp
+    	,p.poss
+    	,case when sum(pb.mp) > 0 then 48*((p.poss*2)/(2*(sum(pb.mp)/5.0))) else null end pace
+    	,sum(tb.pts)/p.poss*100 off_ftg
+    	,sum(tb.pts_opp)*100.0/p.poss def_rtg
+    	,(sum(tb.pts)-sum(tb.pts_opp))/p.poss*100 net_rtg
+    	,sum(tb.fg3a)*1.0/sum(tb.fga) fg3_rate
+    	,sum(tb.fta)*1.0/sum(tb.fga) ft_rate
+    	,(sum(tb.fgm)+.5*sum(tb.fg3m))/sum(tb.fga) efg_pct
+    	,sum(tb.tov)/(sum(tb.fga)+.44*sum(tb.fta)+sum(tb.tov)) tov_pct
+    	,sum(tb.oreb)*1.0/(sum(tb.oreb)+sum(tb.dreb_opp)) oreb_pct
+    	,sum(tb.ftm)*1.0/sum(tb.fga) ff_ft_rate
+    	,sum(tb.fg3a_opp)*1.0/sum(tb.fga_opp) fg3_rate_opp
+    	,sum(tb.fga_opp)*1.0/sum(tb.fga_opp) ft_rate_opp
+    	,(sum(tb.fgm_opp)+.5*sum(tb.fg3m_opp))/sum(tb.fga_opp) efg_pct_opp
+    	,sum(tb.tov_opp)/(sum(tb.fga_opp)+.44*sum(tb.fta_opp)+sum(tb.tov_opp)) tov_pct_opp
+    	,sum(tb.oreb_opp)*1.0/(sum(tb.oreb_opp)+sum(tb.dreb)) oreb_pct_opp
+    	,sum(tb.ftm_opp)*1.0/sum(tb.fga_opp) ff_ft_rate_opp
     from
     	ncaa.team_boxscores tb
     join
-    	ncaa.game_summaries gs on tb."GameID"=gs."GameID" and gs."Status"='Final' and gs."NCAATournamentFLG"='0'
+    	ncaa.game_summaries gs on tb.game_id=gs.game_id and gs.status='Final' and gs.ncaa_tournament_flg=False
     left join 
-    	(select "GameID",cast("TeamID" as bigint) "TeamID",sum(cast("MP" as float)) "MP" from ncaa.player_boxscores group by "GameID",cast("TeamID" as bigint)) pb on tb."GameID"=pb."GameID" and tb."TeamID"=pb."TeamID"
+    	(select game_id,team_id,mp from ncaa.player_boxscores group by game_id,team_id pb on tb.game_id=pb.game_id and tb.team_id=pb.team_id
     join
-    	possessions p on tb."TeamID"=p."TeamID" and gs."Season"=p."Season" and gs."GameType"=p."GameType"
+    	possessions p on tb.team_id=p.team_id and gs.season=p.season and gs.game_type=p.game_type
     group by
-    	tb."Team"
-    	,tb."TeamID"
-    	,gs."Season"
-    	,gs."GameType"
-    	,p."Poss"
+    	tb.team
+    	,tb.team_id
+    	,gs.season
+    	,gs.game_type
+    	,p.poss
     having
-    	sum(tb."FTA") > 0
-    	and sum(tb."FGA") > 0
-    	and sum(tb."3PTA") > 0
-    and sum(tb."FTA_opp") > 0
-	and sum(tb."FGA_opp") > 0
-	and sum(tb."3PTA_opp") > 0
-    and (sum(tb."OREB_opp")+sum(tb."DREB")) > 0
+    	sum(tb.fta) > 0
+    	and sum(tb.fga) > 0
+    	and sum(tb.fg3a) > 0
+    and sum(tb.fta_opp) > 0
+	and sum(tb.fga_opp) > 0
+	and sum(tb.fg3a_opp) > 0
+    and (sum(tb.oreb_opp)+sum(tb.dreb)) > 0
 	'''
 
     team_stats_agg=pd.read_sql(team_stats_agg_query,engine)
 
-    team_stats_agg.to_sql('team_stats_agg_pt',con=engine,schema='ncaa',index=False,if_exists='replace')
+    team_stats_agg.to_sql('team_stats_agg',con=engine,schema='ncaa',index=False,if_exists='replace')
 	
 
 def main():
-    #engine=get_engine()
-    
-    #Get credentials stored in sql.yaml file (saved in root directory)
-    if os.path.isfile('/Users/dh08loma/Documents/Projects/Bracket Voodoo/sql.yaml'):
-        with open("/Users/dh08loma/Documents/Projects/Bracket Voodoo/sql.yaml", 'r') as stream:
-            data_loaded = yaml.load(stream)
-            
-            #domain=data_loaded['SQL_DEV']['domain']
-            user=data_loaded['BBALL_STATS']['user']
-            password=data_loaded['BBALL_STATS']['password']
-            endpoint=data_loaded['BBALL_STATS']['endpoint']
-            port=data_loaded['BBALL_STATS']['port']
-            database=data_loaded['BBALL_STATS']['database']
-    
-    db_string = "postgres://{0}:{1}@{2}:{3}/{4}".format(user,password,endpoint,port,database)
-    engine=sa.create_engine(db_string)
-
+    engine=get_engine()
     calculate_team_stats(engine)
     
     
