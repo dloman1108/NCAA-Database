@@ -38,7 +38,7 @@ def calculate_player_stats_all(engine):
 	select 
 	    pb.player
 	    ,pb.player_id
-	    ,pb.team
+	    ,case when pb.team = 'EKY' then 'EKU' else pb.team end pb.team
         ,pb.team_id
 	    ,gs.season
 	    ,'All' game_type
@@ -194,7 +194,7 @@ def calculate_player_stats_regseason(engine):
 	select 
 	    pb.player
 	    ,pb.player_id
-	    ,pb.team
+	    ,case when pb.team = 'EKY' then 'EKU' else pb.team end pb.team
         ,pb.team_id
 	    ,gs.season
 	    ,gs.game_type
@@ -352,7 +352,7 @@ def calculate_player_stats_conference(engine):
 	select 
 	    pb.player
 	    ,pb.player_id
-	    ,pb.team
+	    ,case when pb.team = 'EKY' then 'EKU' else pb.team end pb.team
         ,pb.team_id
 	    ,gs.season
 	    ,'Conference' game_type

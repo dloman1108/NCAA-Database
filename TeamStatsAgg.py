@@ -53,7 +53,7 @@ def calculate_team_stats_all(engine):
         )
         
     select
-    	tb.team
+    	case when pb.team = 'EKY' then 'EKU' else pb.team end pb.team
         ,tb.team_id
     	,gs.season
     	,'All' game_type
@@ -240,7 +240,7 @@ def calculate_team_stats_regseason(engine):
         )
         
     select
-    	tb.team
+    	case when pb.team = 'EKY' then 'EKU' else pb.team end pb.team
         ,tb.team_id
     	,gs.season
     	,gs.game_type
@@ -432,7 +432,7 @@ def calculate_team_stats_conference(engine):
         )
         
     select
-    	tb.team
+    	case when pb.team = 'EKY' then 'EKU' else pb.team end pb.team
         ,tb.team_id
     	,gs.season
     	,'Conference' game_type
