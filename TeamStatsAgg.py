@@ -130,7 +130,7 @@ def calculate_team_stats_all(engine):
     join
     	possessions p on tb.team_id=p.team_id and gs.season=p.season and gs.game_type=p.game_type
     group by
-    	tb.team
+    	case when pb.team = 'EKY' then 'EKU' else pb.team end pb.team
     	,tb.team_id
     	,gs.season
     	,p.poss
@@ -317,7 +317,7 @@ def calculate_team_stats_regseason(engine):
     join
     	possessions p on tb.team_id=p.team_id and gs.season=p.season and gs.game_type=p.game_type
     group by
-    	tb.team
+    	case when pb.team = 'EKY' then 'EKU' else pb.team end pb.team
     	,tb.team_id
     	,gs.season
     	,gs.game_type
@@ -509,7 +509,7 @@ def calculate_team_stats_conference(engine):
     join
     	possessions p on tb.team_id=p.team_id and gs.season=p.season and gs.game_type=p.game_type
     group by
-    	tb.team
+    	case when pb.team = 'EKY' then 'EKU' else pb.team end pb.team
     	,tb.team_id
     	,gs.season
     	,p.poss

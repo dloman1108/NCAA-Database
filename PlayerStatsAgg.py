@@ -84,17 +84,17 @@ def calculate_player_stats_all(engine):
 	    ,(sum(pb.oreb)*(tsa.mp/5.0))/(sum(pb.mp)*(tsa.oreb*tsa.gp+tsa.dreb_opp*tsa.gp)) oreb_pct
 	    ,(sum(pb.dreb)*(tsa.mp/5.0))/(sum(pb.mp)*(tsa.dreb*tsa.gp+tsa.oreb_opp*tsa.gp)) dreb_pct
 	    ,(sum(pb.reb)*(tsa.mp/5.0))/(sum(pb.mp)*(tsa.reb*tsa.gp+tsa.reb_opp*tsa.gp)) reb_pct
-	    ,sum(pb.ast)*1.0/(((sum(pb.mp)/(tsa.mp/5))*tsa.fgm*tsa.gp)-sum(pb.fgm)) ast_pct
-	    ,sum(pb.stl)*1.0/((sum(pb.mp)/(tsa.mp/5))*tsa.poss) stl_pct
-	    ,sum(pb.blk)*1.0/((sum(pb.mp)/(tsa.mp/5))*(tsa.fga_opp*tsa.gp-tsa.fg3a_opp*tsa.gp)) blk_pct
+	    ,sum(pb.ast)*1.0/(((sum(pb.mp)/(tsa.mp/5.0))*tsa.fgm*tsa.gp)-sum(pb.fgm)) ast_pct
+	    ,sum(pb.stl)*1.0/((sum(pb.mp)/(tsa.mp/5.0))*tsa.poss) stl_pct
+	    ,sum(pb.blk)*1.0/((sum(pb.mp)/(tsa.mp/5.0))*(tsa.fga_opp*tsa.gp-tsa.fg3a_opp*tsa.gp)) blk_pct
 	    ,sum(pb.tov)*1.0/(sum(pb.fga)+0.475*sum(pb.fta)+sum(pb.tov)) tov_pct
-	    ,(sum(pb.fga)+0.475*sum(pb.fta)+sum(pb.tov))/((sum(pb.mp)/(tsa.mp/5))*(tsa.fga*tsa.gp+0.475*tsa.fta*tsa.gp+tsa.tov*tsa.gp)) usg_pct    
+	    ,(sum(pb.fga)+0.475*sum(pb.fta)+sum(pb.tov))/((sum(pb.mp)/(tsa.mp/5.0))*(tsa.fga*tsa.gp+0.475*tsa.fta*tsa.gp+tsa.tov*tsa.gp)) usg_pct    
         ,now() last_update_dts
 	from 
 	    ncaa.player_boxscores pb 
 	join
 	    ncaa.game_summaries gs on pb.game_id=gs.game_id
-	left join
+	join
 		ncaa.team_stats_agg tsa 
         on pb.team_id=tsa.team_id 
         and gs.season=tsa.season
@@ -124,7 +124,7 @@ def calculate_player_stats_all(engine):
 		,tsa.tov
 	having
 	    sum(pb.fga) > 0 and sum(pb.fta) > 0 and sum(pb.tov) > 0 and sum(pb.mp) > 0 
-	    and (((sum(pb.mp)/(tsa.mp/5))*tsa.fgm*tsa.gp)-sum(pb.fgm)) > 0
+	    and (((sum(pb.mp)/(tsa.mp/5.0))*tsa.fgm*tsa.gp)-sum(pb.fgm)) > 0
 	'''
 
 	player_stats_agg=pd.read_sql(team_stats_agg_query,engine)
@@ -240,11 +240,11 @@ def calculate_player_stats_regseason(engine):
 	    ,(sum(pb.oreb)*(tsa.mp/5.0))/(sum(pb.mp)*(tsa.oreb*tsa.gp+tsa.dreb_opp*tsa.gp)) oreb_pct
 	    ,(sum(pb.dreb)*(tsa.mp/5.0))/(sum(pb.mp)*(tsa.dreb*tsa.gp+tsa.oreb_opp*tsa.gp)) dreb_pct
 	    ,(sum(pb.reb)*(tsa.mp/5.0))/(sum(pb.mp)*(tsa.reb*tsa.gp+tsa.reb_opp*tsa.gp)) reb_pct
-	    ,sum(pb.ast)*1.0/(((sum(pb.mp)/(tsa.mp/5))*tsa.fgm*tsa.gp)-sum(pb.fgm)) ast_pct
-	    ,sum(pb.stl)*1.0/((sum(pb.mp)/(tsa.mp/5))*tsa.poss) stl_pct
-	    ,sum(pb.blk)*1.0/((sum(pb.mp)/(tsa.mp/5))*(tsa.fga_opp*tsa.gp-tsa.fg3a_opp*tsa.gp)) blk_pct
+	    ,sum(pb.ast)*1.0/(((sum(pb.mp)/(tsa.mp/5.0))*tsa.fgm*tsa.gp)-sum(pb.fgm)) ast_pct
+	    ,sum(pb.stl)*1.0/((sum(pb.mp)/(tsa.mp/5.0))*tsa.poss) stl_pct
+	    ,sum(pb.blk)*1.0/((sum(pb.mp)/(tsa.mp/5.0))*(tsa.fga_opp*tsa.gp-tsa.fg3a_opp*tsa.gp)) blk_pct
 	    ,sum(pb.tov)*1.0/(sum(pb.fga)+0.475*sum(pb.fta)+sum(pb.tov)) tov_pct
-	    ,(sum(pb.fga)+0.475*sum(pb.fta)+sum(pb.tov))/((sum(pb.mp)/(tsa.mp/5))*(tsa.fga*tsa.gp+0.475*tsa.fta*tsa.gp+tsa.tov*tsa.gp)) usg_pct    
+	    ,(sum(pb.fga)+0.475*sum(pb.fta)+sum(pb.tov))/((sum(pb.mp)/(tsa.mp/5.0))*(tsa.fga*tsa.gp+0.475*tsa.fta*tsa.gp+tsa.tov*tsa.gp)) usg_pct    
         ,now() last_update_dts
 	from 
 	    ncaa.player_boxscores pb 
@@ -282,7 +282,7 @@ def calculate_player_stats_regseason(engine):
 		,tsa.tov
 	having
 	    sum(pb.fga) > 0 and sum(pb.fta) > 0 and sum(pb.tov) > 0 and sum(pb.mp) > 0 
-	    and (((sum(pb.mp)/(tsa.mp/5))*tsa.fgm*tsa.gp)-sum(pb.fgm)) > 0
+	    and (((sum(pb.mp)/(tsa.mp/5.0))*tsa.fgm*tsa.gp)-sum(pb.fgm)) > 0
 	'''
 
 	player_stats_agg=pd.read_sql(team_stats_agg_query,engine)
@@ -398,11 +398,11 @@ def calculate_player_stats_conference(engine):
 	    ,(sum(pb.oreb)*(tsa.mp/5.0))/(sum(pb.mp)*(tsa.oreb*tsa.gp+tsa.dreb_opp*tsa.gp)) oreb_pct
 	    ,(sum(pb.dreb)*(tsa.mp/5.0))/(sum(pb.mp)*(tsa.dreb*tsa.gp+tsa.oreb_opp*tsa.gp)) dreb_pct
 	    ,(sum(pb.reb)*(tsa.mp/5.0))/(sum(pb.mp)*(tsa.reb*tsa.gp+tsa.reb_opp*tsa.gp)) reb_pct
-	    ,sum(pb.ast)*1.0/(((sum(pb.mp)/(tsa.mp/5))*tsa.fgm*tsa.gp)-sum(pb.fgm)) ast_pct
-	    ,sum(pb.stl)*1.0/((sum(pb.mp)/(tsa.mp/5))*tsa.poss) stl_pct
-	    ,sum(pb.blk)*1.0/((sum(pb.mp)/(tsa.mp/5))*(tsa.fga_opp*tsa.gp-tsa.fg3a_opp*tsa.gp)) blk_pct
+	    ,sum(pb.ast)*1.0/(((sum(pb.mp)/(tsa.mp/5.0))*tsa.fgm*tsa.gp)-sum(pb.fgm)) ast_pct
+	    ,sum(pb.stl)*1.0/((sum(pb.mp)/(tsa.mp/5.0))*tsa.poss) stl_pct
+	    ,sum(pb.blk)*1.0/((sum(pb.mp)/(tsa.mp/5.0))*(tsa.fga_opp*tsa.gp-tsa.fg3a_opp*tsa.gp)) blk_pct
 	    ,sum(pb.tov)*1.0/(sum(pb.fga)+0.475*sum(pb.fta)+sum(pb.tov)) tov_pct
-	    ,(sum(pb.fga)+0.475*sum(pb.fta)+sum(pb.tov))/((sum(pb.mp)/(tsa.mp/5))*(tsa.fga*tsa.gp+0.475*tsa.fta*tsa.gp+tsa.tov*tsa.gp)) usg_pct    
+	    ,(sum(pb.fga)+0.475*sum(pb.fta)+sum(pb.tov))/((sum(pb.mp)/(tsa.mp/5.0))*(tsa.fga*tsa.gp+0.475*tsa.fta*tsa.gp+tsa.tov*tsa.gp)) usg_pct    
         ,now() last_update_dts
 	from 
 	    ncaa.player_boxscores pb 
@@ -438,7 +438,7 @@ def calculate_player_stats_conference(engine):
 		,tsa.tov
 	having
 	    sum(pb.fga) > 0 and sum(pb.fta) > 0 and sum(pb.tov) > 0 and sum(pb.mp) > 0 
-	    and (((sum(pb.mp)/(tsa.mp/5))*tsa.fgm*tsa.gp)-sum(pb.fgm)) > 0
+	    and (((sum(pb.mp)/(tsa.mp/5.0))*tsa.fgm*tsa.gp)-sum(pb.fgm)) > 0
 	'''
 
 	player_stats_agg=pd.read_sql(team_stats_agg_query,engine)
