@@ -47,7 +47,13 @@ def append_boxscores(game_id,engine):
     tables=soup.find_all('table')
     
     results_head=[re.sub('\t|\n','',el.string) for el in tables[0].find_all('td')]        
-    results_head_split=np.array_split(results_head,len(results_head)/5.)
+    
+    teams=[]
+    for res in results_head:
+        try:
+            a=int(res)
+        except:
+            teams.append(res)
             
     team_info=soup.find_all('a',{'class':'team-name'})
     
@@ -102,13 +108,25 @@ def append_boxscores(game_id,engine):
                 
             if len(pos)==len(player_stats_df):
                 player_stats_df['position']=pos
-            else:
+            elif len(pos)==len(player_stats_df) - 1:
                 player_stats_df['position']=pos+[None]
+            else:
+                player_stats_df['position']=[None]*len(player_stats_df)
             
         player_stats_df=player_stats_df.replace('-----','0-0').replace('--',0)
         
-        player_stats_df['team']=team_info[ind-1].find_all('span',{'class':'abbrev'})[0].text
-        player_stats_df['team_id']=team_info[ind-1]['data-clubhouse-uid'][12:]
+        if len(team_info) == 2:
+            player_stats_df['team']=team_info[ind-1].find_all('span',{'class':'abbrev'})[0].text
+            player_stats_df['team_id']=team_info[ind-1]['data-clubhouse-uid'][12:]
+        else:
+            if team_info[0].find_all('span',{'class':'abbrev'})[0].text == teams[ind-1]:
+                player_stats_df['team']=team_info[0].find_all('span',{'class':'abbrev'})[0].text
+                player_stats_df['team_id']=team_info[0]['data-clubhouse-uid'][12:]
+            else:
+                player_stats_df['team']=teams[ind-1]
+                player_stats_df['team_id']=None
+        
+        
         player_stats_df['game_id']=game_id
                 
                 
@@ -163,8 +181,8 @@ def append_boxscores(game_id,engine):
 
 def get_engine():
     #Get credentials stored in sql.yaml file (saved in root directory)
-    if os.path.isfile('/sql.yaml'):
-        with open("/sql.yaml", 'r') as stream:
+    if os.path.isfile('/Users/dh08loma/Documents/Projects/Bracket Voodoo/sql.yaml'):
+        with open("/Users/dh08loma/Documents/Projects/Bracket Voodoo/sql.yaml", 'r') as stream:
             data_loaded = yaml.load(stream)
             
             #domain=data_loaded['SQL_DEV']['domain']
