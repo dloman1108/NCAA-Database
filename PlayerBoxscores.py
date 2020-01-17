@@ -116,14 +116,14 @@ def append_boxscores(game_id,engine):
         player_stats_df=player_stats_df.replace('-----','0-0').replace('--',0)
         
         if len(team_info) == 2:
-            player_stats_df['team']=team_info[ind-1].find_all('span',{'class':'abbrev'})[0].text
+            player_stats_df['team_abbr']=team_info[ind-1].find_all('span',{'class':'abbrev'})[0].text
             player_stats_df['team_id']=team_info[ind-1]['data-clubhouse-uid'][12:]
         else:
             if team_info[0].find_all('span',{'class':'abbrev'})[0].text == teams[ind-1]:
-                player_stats_df['team']=team_info[0].find_all('span',{'class':'abbrev'})[0].text
+                player_stats_df['team_abbr']=team_info[0].find_all('span',{'class':'abbrev'})[0].text
                 player_stats_df['team_id']=team_info[0]['data-clubhouse-uid'][12:]
             else:
-                player_stats_df['team']=teams[ind-1]
+                player_stats_df['team_abbr']=teams[ind-1]
                 player_stats_df['team_id']=None
         
         
@@ -141,7 +141,7 @@ def append_boxscores(game_id,engine):
         
         player_stats_df['starter_flg']=[1.0]*5+[0.0]*(len(player_stats_df)-5)
         
-        column_order=['game_id','player','player_id','position','team','team_id','starter_flg',
+        column_order=['game_id','player','player_id','position','team_abbr','team_id','starter_flg',
                       'mp','fg','fgm','fga','fg3','fg3m','fg3a','ft','ftm','fta',
                       'oreb','dreb','reb','ast','stl','blk','tov','pf','pts','dnp_reason']
         
@@ -154,7 +154,7 @@ def append_boxscores(game_id,engine):
                                                     'player': sa.types.VARCHAR(length=255),
                                                     'player_id': sa.types.INTEGER(),
                                                     'position': sa.types.CHAR(length=5),
-                                                    'team': sa.types.VARCHAR(length=255),
+                                                    'team_abbr': sa.types.VARCHAR(length=255),
                                                     'team_id':sa.types.INTEGER(),
                                                     'starter_flg': sa.types.BOOLEAN(),
                                                     'mp': sa.types.INTEGER(),
@@ -181,8 +181,8 @@ def append_boxscores(game_id,engine):
 
 def get_engine():
     #Get credentials stored in sql.yaml file (saved in root directory)
-    if os.path.isfile('/Users/dh08loma/Documents/Projects/Bracket Voodoo/sql.yaml'):
-        with open("/Users/dh08loma/Documents/Projects/Bracket Voodoo/sql.yaml", 'r') as stream:
+    if os.path.isfile('/sql.yaml'):
+        with open("/sql.yaml", 'r') as stream:
             data_loaded = yaml.load(stream)
             
             #domain=data_loaded['SQL_DEV']['domain']

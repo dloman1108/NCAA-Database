@@ -89,13 +89,13 @@ def append_team_boxscores(game_id,engine):
     if len(results_body[2::3]) == 18:
         team_stats_df=pd.DataFrame([([tm1,tm1_id,tm1_pts]+results_body[1::3]),
                       ([tm2,tm2_id,tm2_pts]+results_body[2::3])],
-                    columns=['team','team_id','pts','fg','fg_pct','fg3','fg3_pct',
+                    columns=['team_abbr','team_id','pts','fg','fg_pct','fg3','fg3_pct',
                              'ft','ft_pct','reb','oreb','dreb','tm_reb','ast','stl',
                              'blk','tov','pf','tech_fl','flag_fl','largest_lead'])
     else:
         team_stats_df=pd.DataFrame([([tm1,tm1_id,tm1_pts]+results_body[1::3]),
                       ([tm2,tm2_id,tm2_pts]+results_body[2::3])],
-                    columns=['team','team_id','pts','fg','fg_pct','fg3','fg3_pct',
+                    columns=['team_abbr','team_id','pts','fg','fg_pct','fg3','fg3_pct',
                              'ft','ft_pct','reb','oreb','dreb','tm_reb','ast','stl',
                              'blk','tov','pf','tech_fl','flag_fl'])
         team_stats_df['largest_lead'] = None
@@ -117,12 +117,12 @@ def append_team_boxscores(game_id,engine):
     team_stats_df['ftm']=team_stats_df.apply(lambda x: get_made(x,'ft'), axis=1)
     team_stats_df['fta']=team_stats_df.apply(lambda x: get_attempts(x,'ft'), axis=1)
     
-    team_stats_df['opp_team']=team_stats_df.team.tolist()[::-1]
+    team_stats_df['opp_team_abbr']=team_stats_df.team_abbr.tolist()[::-1]
     
-    team_stats_df=team_stats_df.merge(team_stats_df.drop(['team','game_id'],axis=1),left_on='team',right_on='opp_team',suffixes=('', '_opp')).drop('opp_team_opp',axis=1)   
+    team_stats_df=team_stats_df.merge(team_stats_df.drop(['team_abbr','game_id'],axis=1),left_on='team_abbr',right_on='opp_team_abbr',suffixes=('', '_opp')).drop('opp_team_abbr_opp',axis=1)   
     
     team_stats_df['poss']=team_stats_df.apply(lambda x: get_possessions(x),axis=1)
-    team_stats_df=team_stats_df.merge(team_stats_df[['opp_team','poss']],left_on='team',right_on='opp_team',suffixes=('', '_opp')).drop('opp_team_opp',axis=1)   
+    team_stats_df=team_stats_df.merge(team_stats_df[['opp_team_abbr','poss']],left_on='team_abbr',right_on='opp_team_abbr',suffixes=('', '_opp')).drop('opp_team_abbr_opp',axis=1)   
     
     team_stats_df['ortg']=team_stats_df.pts/team_stats_df.poss*100
     team_stats_df['drtg']=team_stats_df.pts_opp/team_stats_df.poss*100
@@ -130,10 +130,10 @@ def append_team_boxscores(game_id,engine):
     
     team_stats_df['win_flg']=team_stats_df.apply(lambda x: get_winner(x),axis=1)
     
-    column_order=['game_id', 'team', 'team_id', 'pts', 'fg', 'fgm', 'fga', 'fg_pct', 'fg3', 'fg3_pct', 
-                  'fg3m','fg3a', 'ft', 'ftm', 'fta', 'ft_pct', 'oreb', 'dreb', 'reb',
+    column_order=['game_id', 'team_abbr', 'team_id', 'pts', 'fg', 'fgm', 'fga', 'fg_pct', 'fg3', 
+                  'fg3m','fg3a', 'fg3_pct', 'ft', 'ftm', 'fta', 'ft_pct', 'oreb', 'dreb', 'reb',
                   'ast', 'stl', 'blk', 'tov', 'pf', 
-                  'tech_fl', 'flag_fl','largest_lead', 'opp_team', 'pts_opp', 'fg_opp', 'fgm_opp', 'fga_opp',
+                  'tech_fl', 'flag_fl','largest_lead', 'opp_team_abbr', 'pts_opp', 'fg_opp', 'fgm_opp', 'fga_opp',
                   'fg_pct_opp', 'fg3_opp', 'fg3m_opp', 'fg3a_opp', 'fg3_pct_opp', 'ft_opp', 
                   'ftm_opp', 'fta_opp', 'ft_pct_opp', 'oreb_opp', 'dreb_opp', 'reb_opp',
                   'ast_opp', 'stl_opp', 'blk_opp', 'tov_opp', 
@@ -146,7 +146,7 @@ def append_team_boxscores(game_id,engine):
                          index=False,
                          if_exists='append',
                          dtype={'game_id': sa.types.INTEGER(),
-                                'team': sa.types.VARCHAR(length=255),
+                                'team_abbr': sa.types.VARCHAR(length=255),
                                 'team_id': sa.types.INTEGER(),
                                 'pts': sa.types.INTEGER(),
                                 'fg': sa.types.VARCHAR(length=255),
@@ -173,7 +173,7 @@ def append_team_boxscores(game_id,engine):
                                 'flag_fl': sa.types.INTEGER(),
                                 'largest_lead': sa.types.INTEGER(),
                                 
-                                'opp_team': sa.types.VARCHAR(length=255),
+                                'opp_team_abbr': sa.types.VARCHAR(length=255),
                                 'opp_team_id': sa.types.INTEGER(),
                                 'pts_opp': sa.types.INTEGER(),
                                 'fg_opp': sa.types.VARCHAR(length=255),
