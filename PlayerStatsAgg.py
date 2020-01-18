@@ -38,7 +38,8 @@ def calculate_player_stats_all(engine):
 	select 
 	    pb.player
 	    ,pb.player_id
-	    ,case when pb.team = 'EKY' then 'EKU' else pb.team end team
+	    ,tsa.team
+	    ,pb.team_abbr
         ,pb.team_id
 	    ,gs.season
 	    ,'All' game_type
@@ -104,7 +105,8 @@ def calculate_player_stats_all(engine):
 	group by
 	    pb.player
 	    ,pb.player_id
-	    ,pb.team
+	    ,tsa.team
+	    ,pb.team_abbr
         ,pb.team_id
 	    ,gs.season
 		,tsa.mp
@@ -137,6 +139,8 @@ def calculate_player_stats_all(engine):
                          dtype={'player': sa.types.VARCHAR(length=255),
                                 'player_id': sa.types.INTEGER(),
                                 'team': sa.types.VARCHAR(length=255),
+                                'team_abbr': sa.types.CHAR(5),
+                                'team_id': sa.types.INTEGER(),
                                 'season': sa.types.INTEGER(),
                                 'game_type': sa.types.VARCHAR(length=255),
                                 'gp': sa.types.INTEGER(),
@@ -194,7 +198,8 @@ def calculate_player_stats_regseason(engine):
 	select 
 	    pb.player
 	    ,pb.player_id
-	    ,case when pb.team = 'EKY' then 'EKU' else pb.team end team
+	    ,tsa.team
+	    ,pb.team_abbr
         ,pb.team_id
 	    ,gs.season
 	    ,gs.game_type
@@ -261,7 +266,8 @@ def calculate_player_stats_regseason(engine):
 	group by
 	    pb.player
 	    ,pb.player_id
-	    ,pb.team
+	    ,tsa.team
+	    ,pb.team_abbr
         ,pb.team_id
 	    ,gs.season
 		,gs.game_type
@@ -295,6 +301,8 @@ def calculate_player_stats_regseason(engine):
                          dtype={'player': sa.types.VARCHAR(length=255),
                                 'player_id': sa.types.INTEGER(),
                                 'team': sa.types.VARCHAR(length=255),
+                                'team_abbr': sa.types.CHAR(5),
+                                'team_id': sa.types.INTEGER(),
                                 'season': sa.types.INTEGER(),
                                 'game_type': sa.types.VARCHAR(length=255),
                                 'gp': sa.types.INTEGER(),
@@ -352,7 +360,8 @@ def calculate_player_stats_conference(engine):
 	select 
 	    pb.player
 	    ,pb.player_id
-	    ,case when pb.team = 'EKY' then 'EKU' else pb.team end team
+	    ,tsa.team
+	    ,pb.team_abbr
         ,pb.team_id
 	    ,gs.season
 	    ,'Conference' game_type
@@ -418,7 +427,8 @@ def calculate_player_stats_conference(engine):
 	group by
 	    pb.player
 	    ,pb.player_id
-	    ,pb.team
+	    ,tsa.team
+	    ,pb.team_abbr
         ,pb.team_id
 	    ,gs.season
 		,tsa.mp
@@ -451,6 +461,8 @@ def calculate_player_stats_conference(engine):
                          dtype={'player': sa.types.VARCHAR(length=255),
                                 'player_id': sa.types.INTEGER(),
                                 'team': sa.types.VARCHAR(length=255),
+                                'team_abbr': sa.types.CHAR(5),
+                                'team_id': sa.types.INTEGER(),
                                 'season': sa.types.INTEGER(),
                                 'game_type': sa.types.VARCHAR(length=255),
                                 'gp': sa.types.INTEGER(),
