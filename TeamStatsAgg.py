@@ -40,7 +40,6 @@ def calculate_team_stats_all(engine):
             select
                 tb.team_id
                 ,gs.season
-                ,gs.game_type
                 ,.5*(sum(tb.fga) + 0.475*sum(tb.fta) - sum(tb.oreb) + sum(tb.tov)) + .5*(sum(tb.fga_opp) + 0.475*sum(tb.fta_opp) - sum(tb.oreb_opp) + sum(tb.tov_opp)) poss         
             from
                 ncaa.team_boxscores tb
@@ -49,7 +48,6 @@ def calculate_team_stats_all(engine):
             group by
                 tb.team_id
                 ,gs.season
-                ,gs.game_type
         )
         
     select
@@ -131,7 +129,7 @@ def calculate_team_stats_all(engine):
     left join 
         (select game_id,team_id,sum(cast(mp as float)) mp from ncaa.player_boxscores group by game_id,team_id) pb on tb.game_id=pb.game_id and tb.team_id=pb.team_id
     join
-        possessions p on tb.team_id=p.team_id and gs.season=p.season and gs.game_type=p.game_type
+        possessions p on tb.team_id=p.team_id and gs.season=p.season
     group by
         case when tb.team_abbr = 'EKY' then 'EKU' else tb.team_abbr end
         ,tb.team_id
@@ -230,7 +228,6 @@ def calculate_team_stats_regseason(engine):
             select
                 tb.team_id
                 ,gs.season
-                ,gs.game_type
                 ,.5*(sum(tb.fga) + 0.475*sum(tb.fta) - sum(tb.oreb) + sum(tb.tov)) + .5*(sum(tb.fga_opp) + 0.475*sum(tb.fta_opp) - sum(tb.oreb_opp) + sum(tb.tov_opp)) poss         
             from
                 ncaa.team_boxscores tb
@@ -239,7 +236,6 @@ def calculate_team_stats_regseason(engine):
             group by
                 tb.team_id
                 ,gs.season
-                ,gs.game_type
         )
         
     select
@@ -249,7 +245,7 @@ def calculate_team_stats_regseason(engine):
         ,case when tb.team_abbr = 'EKY' then 'EKU' else tb.team_abbr end team_abbr
         ,tb.team_id
         ,gs.season
-        ,gs.game_type
+        ,'Regular Season' game_type
         ,count(*) gp
         ,sum(case when tb.pts > tb.pts_opp then 1 else 0 end) wins
         ,sum(case when tb.pts < tb.pts_opp then 1 else 0 end) losses
@@ -321,7 +317,7 @@ def calculate_team_stats_regseason(engine):
     left join 
         (select game_id,team_id,sum(cast(mp as float)) mp from ncaa.player_boxscores group by game_id,team_id) pb on tb.game_id=pb.game_id and tb.team_id=pb.team_id
     join
-        possessions p on tb.team_id=p.team_id and gs.season=p.season and gs.game_type=p.game_type
+        possessions p on tb.team_id=p.team_id and gs.season=p.season
     group by
         case when tb.team_abbr = 'EKY' then 'EKU' else tb.team_abbr end
         ,tb.team_id
@@ -425,7 +421,6 @@ def calculate_team_stats_conference(engine):
             select
                 tb.team_id
                 ,gs.season
-                ,gs.game_type
                 ,.5*(sum(tb.fga) + 0.475*sum(tb.fta) - sum(tb.oreb) + sum(tb.tov)) + .5*(sum(tb.fga_opp) + 0.475*sum(tb.fta_opp) - sum(tb.oreb_opp) + sum(tb.tov_opp)) poss         
             from
                 ncaa.team_boxscores tb
@@ -434,7 +429,6 @@ def calculate_team_stats_conference(engine):
             group by
                 tb.team_id
                 ,gs.season
-                ,gs.game_type
         )
         
     select
@@ -516,7 +510,7 @@ def calculate_team_stats_conference(engine):
     left join 
         (select game_id,team_id,sum(cast(mp as float)) mp from ncaa.player_boxscores group by game_id,team_id) pb on tb.game_id=pb.game_id and tb.team_id=pb.team_id
     join
-        possessions p on tb.team_id=p.team_id and gs.season=p.season and gs.game_type=p.game_type
+        possessions p on tb.team_id=p.team_id and gs.season=p.season
     group by
         case when tb.team_abbr = 'EKY' then 'EKU' else tb.team_abbr end 
         ,tb.team_id
