@@ -118,7 +118,7 @@ def calculate_team_stats_all(engine):
         ,sum(tb.oreb)*1.0/(sum(tb.oreb)+sum(tb.dreb_opp)) oreb_pct
         ,sum(tb.ftm)*1.0/sum(tb.fga) ff_ft_rate
         ,sum(tb.fg3a_opp)*1.0/sum(tb.fga_opp) fg3_rate_opp
-        ,sum(tb.fga_opp)*1.0/sum(tb.fga_opp) ft_rate_opp
+        ,sum(tb.fta_opp)*1.0/sum(tb.fga_opp) ft_rate_opp
         ,(sum(tb.fgm_opp)+.5*sum(tb.fg3m_opp))/sum(tb.fga_opp) efg_pct_opp
         ,sum(tb.tov_opp)/(sum(tb.fga_opp)+.475*sum(tb.fta_opp)+sum(tb.tov_opp)) tov_pct_opp
         ,sum(tb.oreb_opp)*1.0/(sum(tb.oreb_opp)+sum(tb.dreb)) oreb_pct_opp
@@ -308,7 +308,7 @@ def calculate_team_stats_regseason(engine):
         ,sum(tb.oreb)*1.0/(sum(tb.oreb)+sum(tb.dreb_opp)) oreb_pct
         ,sum(tb.ftm)*1.0/sum(tb.fga) ff_ft_rate
         ,sum(tb.fg3a_opp)*1.0/sum(tb.fga_opp) fg3_rate_opp
-        ,sum(tb.fga_opp)*1.0/sum(tb.fga_opp) ft_rate_opp
+        ,sum(tb.fta_opp)*1.0/sum(tb.fga_opp) ft_rate_opp
         ,(sum(tb.fgm_opp)+.5*sum(tb.fg3m_opp))/sum(tb.fga_opp) efg_pct_opp
         ,sum(tb.tov_opp)/(sum(tb.fga_opp)+.475*sum(tb.fta_opp)+sum(tb.tov_opp)) tov_pct_opp
         ,sum(tb.oreb_opp)*1.0/(sum(tb.oreb_opp)+sum(tb.dreb)) oreb_pct_opp
@@ -503,7 +503,7 @@ def calculate_team_stats_conference(engine):
         ,sum(tb.oreb)*1.0/(sum(tb.oreb)+sum(tb.dreb_opp)) oreb_pct
         ,sum(tb.ftm)*1.0/sum(tb.fga) ff_ft_rate
         ,sum(tb.fg3a_opp)*1.0/sum(tb.fga_opp) fg3_rate_opp
-        ,sum(tb.fga_opp)*1.0/sum(tb.fga_opp) ft_rate_opp
+        ,sum(tb.fta_opp)*1.0/sum(tb.fga_opp) ft_rate_opp
         ,(sum(tb.fgm_opp)+.5*sum(tb.fg3m_opp))/sum(tb.fga_opp) efg_pct_opp
         ,sum(tb.tov_opp)/(sum(tb.fga_opp)+.475*sum(tb.fta_opp)+sum(tb.tov_opp)) tov_pct_opp
         ,sum(tb.oreb_opp)*1.0/(sum(tb.oreb_opp)+sum(tb.dreb)) oreb_pct_opp
