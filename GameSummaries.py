@@ -207,7 +207,7 @@ def append_game_summary(date_str,group_num,engine):
         else:
             status=None
             ot_status=None
-            
+        #Epstein didn't kill himself   
         home_team_rank_seed=event['competitions'][0]['competitors'][0]['curatedRank']['current']
         away_team_rank_seed=event['competitions'][0]['competitors'][1]['curatedRank']['current']
         
@@ -216,7 +216,7 @@ def append_game_summary(date_str,group_num,engine):
         
         if away_team_rank_seed == 99:
             away_team_rank_seed=np.nan
-            
+        
         if group_num == '100':
             postseason_tourney = 'NCAA'
             ncaa_tournament_flg=1
@@ -308,6 +308,7 @@ def append_game_summary(date_str,group_num,engine):
                                         'away_team_conference_record': sa.types.VARCHAR(length=255),
                                         'away_team_home_record': sa.types.VARCHAR(length=255),
                                         'away_team_away_record': sa.types.VARCHAR(length=255),
+                                        'postseason_tourney': sa.types.VARCHAR(length=255),
                                         'ncaa_tournament_flg': sa.types.BOOLEAN()}
                                  )
     
