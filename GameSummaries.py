@@ -387,7 +387,7 @@ def drop_sched_rows(engine):
         ncaa.game_summaries gs
     where
         status = 'Scheduled'
-        --and date < (now() - interval '1 day')
+        and date < (now() - interval '1 day')
 
     '''
 
