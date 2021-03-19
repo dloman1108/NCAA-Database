@@ -203,15 +203,16 @@ def append_game_summary(engine):
         #Get game statuses - Completion and OT
         if 'status' in event:
             status=event['status']['type']['description']
-            period=event['status']['type']['period']
             display_clock=event['status']['displayClock']
             try:
                 ot_status=event['status']['type']['altDetail']
+                period=event['status']['type']['period']
             except:
                 ot_status='Reg'
         else:
             status=None
             ot_status=None
+            period=None
 
         if 'situation' in event['competitions'][0]:
             try:
