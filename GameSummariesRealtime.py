@@ -209,6 +209,7 @@ def append_game_summary(engine):
                 period=event['status']['period']
             except:
                 ot_status='Reg'
+                period=None
         else:
             status=None
             ot_status=None
