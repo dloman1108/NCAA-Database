@@ -48,8 +48,8 @@ lpa_query='''
     WHERE 1=1
         and status in ('In Progress')
         and period=2
-        and (home_team_rank_seed-away_team_rank_seed >= 4 and home_team_win_pct >= .8
-        or away_team_rank_seed-home_team_rank_seed >= 4 and away_team_win_pct >= .8)
+        --and (home_team_rank_seed-away_team_rank_seed >= 4 and home_team_win_pct >= .8
+        --or away_team_rank_seed-home_team_rank_seed >= 4 and away_team_win_pct >= .8)
     limit 1
 '''
 
@@ -99,9 +99,9 @@ while len(active_games_df) > 0:
         lpa_string=emoji.emojize(':police_car_light:')+' #UpsetAlert '+emoji.emojize(':police_car_light:')+'\n\n'
 
         if home_team_score >= away_team_score:
-            lpa_string+='{} {}, {} {} with {} remaining in half {}'.format(home_team_abbr,home_team_score,away_team_abbr,away_team_score,display_clock,half)
+            lpa_string+='{} {}, {} {} with {} remaining'.format(home_team_abbr,home_team_score,away_team_abbr,away_team_score,display_clock)
         else:
-            lpa_string+='{} {}, {} {} with {} remaining in half {}'.format(away_team_abbr,away_team_score,home_team_abbr,home_team_score,display_clock,half)
+            lpa_string+='{} {}, {} {} with {} remaining'.format(away_team_abbr,away_team_score,home_team_abbr,home_team_score,display_clock)
 
         try:
             t.statuses.update(
@@ -125,8 +125,9 @@ while len(active_games_df) > 0:
             WHERE 1=1
                 and status in ('In Progress')
                 and period=2
-                and (home_team_rank_seed-away_team_rank_seed >= 4 and home_win_pct >= .8
-                or away_team_rank_seed-home_team_rank_seed >= 4 and away_win_pct >= .8)
+                --and (home_team_rank_seed-away_team_rank_seed >= 4 and home_win_pct >= .8
+                --or away_team_rank_seed-home_team_rank_seed >= 4 and away_win_pct >= .8)
+                and game_id not in {}
             limit 1
             '''.format("("+",".join(game_ids)+")")
 
