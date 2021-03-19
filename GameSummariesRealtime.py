@@ -46,7 +46,7 @@ def append_game_summary(engine):
     scoreboard_results=[]
     for event in events:
         game_id=event['id'] #Game ID
-        date=date.today()
+        datey=date.today()
         season=event['season']['year'] #Season
         
         #Get venue/attendance
@@ -235,7 +235,7 @@ def append_game_summary(engine):
         ncaa_tournament_flg=1
             
         #Append game results to list   
-        scoreboard_results.append((game_id,status,ot_status,game_type,neutral_site_flg,date,season,
+        scoreboard_results.append((game_id,status,ot_status,game_type,neutral_site_flg,datey,season,
                                   home_team,away_team,home_team_rank_seed,away_team_rank_seed,home_team_score,
                                   away_team_score,location,venue,venue_id,attendance,broadcast,
                                   headline_long,headline_short,home_team_abbr,home_team_id,home_team_conference_id,home_team_d1_flg,
