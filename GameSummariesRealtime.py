@@ -211,7 +211,7 @@ def append_game_summary(engine):
             status=None
             ot_status=None
 
-        if 'situation' in event:
+        if 'situation' in event['competitions'][0]:
             try:
                 home_win_pct=event['competitions'][0]['situation']['lastPlay']['probability']['homeWinPercentage']
                 away_win_pct=event['competitions'][0]['situation']['lastPlay']['probability']['awayWinPercentage']
