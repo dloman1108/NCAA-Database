@@ -340,7 +340,7 @@ from datetime import date
     
 def main():
     engine=get_engine()
-    append_game_summary(group_num,engine)
+    append_game_summary(engine)
     
     
     
