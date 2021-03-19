@@ -261,7 +261,7 @@ def append_game_summary(engine):
                'home_team_overall_record','home_team_conference_record','home_team_home_record',
                'home_team_away_record','away_team_overall_record','away_team_conference_record',
                'away_team_home_record','away_team_away_record','postseason_tourney','ncaa_tournament_flg',
-               ',home_win_pct','away_win_pct','display_clock','period']  
+               'home_team_win_pct','away_team_win_pct','display_clock','period']  
      
     #Save all games for date to DF                           
     scoreboard_results_df=pd.DataFrame(scoreboard_results,columns=col_names)
