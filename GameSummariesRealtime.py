@@ -206,9 +206,11 @@ def append_game_summary(engine):
             display_clock=event['status']['displayClock']
             try:
                 ot_status=event['status']['type']['altDetail']
-                period=event['status']['period']
             except:
                 ot_status='Reg'
+            try:
+                period=event['status']['period']
+            except:
                 period=None
         else:
             status=None
