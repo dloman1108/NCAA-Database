@@ -133,7 +133,7 @@ while len(active_games_df) > 0:
     else:
         time.sleep(45)
 
-    exec(open(fp+'/Raw Data/GameSummariesRealtime.py').read())
+    exec(open(fp+'/GameSummariesRealtime.py').read())
     active_games_df=pd.read_sql(active_games_query,engine)
 
 
