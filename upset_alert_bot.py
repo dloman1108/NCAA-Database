@@ -77,7 +77,7 @@ fp=os.path.dirname(os.path.realpath(__file__))
 
 
 
-exec(open(fp+'/Raw Data/GameSummariesRealtime.py').read())
+exec(open(fp+'/GameSummariesRealtime.py').read())
 active_games_df=pd.read_sql(active_games_query,engine)
 
 game_ids=[]
