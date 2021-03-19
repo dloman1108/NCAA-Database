@@ -315,7 +315,7 @@ def append_game_summary(engine):
                                         'ncaa_tournament_flg': sa.types.BOOLEAN(),
                                         'home_team_win_pct': sa.types.FLOAT(),
                                         'away_team_win_pct': sa.types.FLOAT(),
-                                        'period': sa.types.INTEGER()}
+                                        'period': sa.types.VARCHAR(length=255)}
                                  )
     
 
