@@ -13,6 +13,8 @@ import re
 import os
 import yaml
 import sqlalchemy as sa
+from datetime import date
+
 
 #Function which takes a date string and appends game summaries
 #to PostGres database
@@ -44,7 +46,7 @@ def append_game_summary(engine):
     scoreboard_results=[]
     for event in events:
         game_id=event['id'] #Game ID
-        date=date_str[4:6]+'-'+date_str[6:]+'-'+date_str[:4] #Date
+        date=date.today()
         season=event['season']['year'] #Season
         
         #Get venue/attendance
