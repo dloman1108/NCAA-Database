@@ -203,6 +203,7 @@ def append_game_summary(engine):
         #Get game statuses - Completion and OT
         if 'status' in event:
             status=event['status']['type']['description']
+            period=event['status']['type']['description']
             try:
                 ot_status=event['status']['type']['altDetail']
             except:
@@ -257,7 +258,7 @@ def append_game_summary(engine):
                'home_team_overall_record','home_team_conference_record','home_team_home_record',
                'home_team_away_record','away_team_overall_record','away_team_conference_record',
                'away_team_home_record','away_team_away_record','postseason_tourney','ncaa_tournament_flg',
-               ',home_win_pct','away_win_pct']  
+               ',home_win_pct','away_win_pct','period']  
      
     #Save all games for date to DF                           
     scoreboard_results_df=pd.DataFrame(scoreboard_results,columns=col_names)
@@ -313,7 +314,8 @@ def append_game_summary(engine):
                                         'postseason_tourney': sa.types.VARCHAR(length=255),
                                         'ncaa_tournament_flg': sa.types.BOOLEAN(),
                                         'home_team_win_pct': sa.types.FLOAT(),
-                                        'away_team_win_pct': sa.types.FLOAT()}
+                                        'away_team_win_pct': sa.types.FLOAT(),
+                                        'period': sa.types.INTEGER()}
                                  )
     
 
