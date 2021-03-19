@@ -30,7 +30,6 @@ t = Twitter(
 
 active_games_query='''
 select max(period) max_period from ncaa.game_summaries_realtime
-where status in ('In Progress')
 '''
 
 
