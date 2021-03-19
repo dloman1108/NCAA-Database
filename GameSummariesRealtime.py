@@ -229,21 +229,8 @@ def append_game_summary(engine):
         if away_team_rank_seed == 99:
             away_team_rank_seed=np.nan
         
-        if group_num == '100':
-            postseason_tourney = 'NCAA'
-            ncaa_tournament_flg=1
-        elif group_num == '98':
-            postseason_tourney = 'NIT'
-            ncaa_tournament_flg=0
-        elif group_num == '55':
-            postseason_tourney = 'CIT'
-            ncaa_tournament_flg=0
-        elif group_num == '56':
-            postseason_tourney = 'CBI'
-            ncaa_tournament_flg=0
-        else:
-            postseason_tourney = None
-            ncaa_tournament_flg=0
+        postseason_tourney = 'NCAA'
+        ncaa_tournament_flg=1
             
         #Append game results to list   
         scoreboard_results.append((game_id,status,ot_status,game_type,neutral_site_flg,date,season,
