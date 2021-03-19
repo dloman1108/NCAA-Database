@@ -203,7 +203,8 @@ def append_game_summary(engine):
         #Get game statuses - Completion and OT
         if 'status' in event:
             status=event['status']['type']['description']
-            period=event['status']['type']['description']
+            period=event['status']['type']['period']
+            display_clock=event['status']['displayClock']
             try:
                 ot_status=event['status']['type']['altDetail']
             except:
@@ -245,7 +246,7 @@ def append_game_summary(engine):
                                   group_conference_flg,group_id,group_name,
                                   home_team_overall_record,home_team_conference_record,home_team_home_record,home_team_away_record,
                                   away_team_overall_record,away_team_conference_record,away_team_home_record,away_team_away_record,
-                                  postseason_tourney,ncaa_tournament_flg,home_win_pct,away_win_pct,period))
+                                  postseason_tourney,ncaa_tournament_flg,home_win_pct,away_win_pct,display_clock,period))
     
     #Define column names
     col_names=['game_id','status','status_detail','game_type','neutral_site_flg',
@@ -258,7 +259,7 @@ def append_game_summary(engine):
                'home_team_overall_record','home_team_conference_record','home_team_home_record',
                'home_team_away_record','away_team_overall_record','away_team_conference_record',
                'away_team_home_record','away_team_away_record','postseason_tourney','ncaa_tournament_flg',
-               ',home_win_pct','away_win_pct','period']  
+               ',home_win_pct','away_win_pct','display_clock','period']  
      
     #Save all games for date to DF                           
     scoreboard_results_df=pd.DataFrame(scoreboard_results,columns=col_names)
@@ -315,7 +316,8 @@ def append_game_summary(engine):
                                         'ncaa_tournament_flg': sa.types.BOOLEAN(),
                                         'home_team_win_pct': sa.types.FLOAT(),
                                         'away_team_win_pct': sa.types.FLOAT(),
-                                        'period': sa.types.VARCHAR(length=255)}
+                                        'display_clock': sa.types.VARCHAR(length=255),
+                                        'period': sa.types.INTEGER()}
                                  )
     
 
