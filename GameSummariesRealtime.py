@@ -264,7 +264,7 @@ def append_game_summary(engine):
     
     #Append dataframe results to PostGres database
     scoreboard_results_df.to_sql('game_summaries_realtime',
-                                 con=engine,schema='ncaa_sandbox',
+                                 con=engine,schema='ncaa',
                                  index=False,
                                  if_exists='replace',
                                  dtype={'game_id': sa.types.INTEGER(),
