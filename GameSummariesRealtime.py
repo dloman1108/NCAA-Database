@@ -245,7 +245,7 @@ def append_game_summary(engine):
                                   group_conference_flg,group_id,group_name,
                                   home_team_overall_record,home_team_conference_record,home_team_home_record,home_team_away_record,
                                   away_team_overall_record,away_team_conference_record,away_team_home_record,away_team_away_record,
-                                  postseason_tourney,ncaa_tournament_flg,home_win_pct,away_win_pct))
+                                  postseason_tourney,ncaa_tournament_flg,home_win_pct,away_win_pct,period))
     
     #Define column names
     col_names=['game_id','status','status_detail','game_type','neutral_site_flg',
