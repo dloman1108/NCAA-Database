@@ -48,8 +48,8 @@ lpa_query='''
     WHERE 1=1
         and status in ('In Progress')
         and period=2
-        and (home_team_rank_seed-away_team_rank_seed >= 4 and home_win_pct >= .8
-        or away_team_rank_seed-home_team_rank_seed >= 4 and away_win_pct >= .8)
+        and (home_team_rank_seed-away_team_rank_seed >= 4 and home_team_win_pct >= .8
+        or away_team_rank_seed-home_team_rank_seed >= 4 and away_team_win_pct >= .8)
     limit 1
 '''
 
