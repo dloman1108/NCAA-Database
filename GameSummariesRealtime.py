@@ -207,7 +207,7 @@ def append_game_summary(engine):
                 ot_status='Reg'
         else:
             status=None
-            ot_status=None]
+            ot_status=None
 
         if 'situation' in event:
             try:
